@@ -1,0 +1,13 @@
+SELECT * FROM mysql.help_topic;
+SELECT * FROM mysql.help_topic WHERE description LIKE'%SHOW CREATE%';
+USE employees;
+SHOW TABLES;
+SELECT * FROM salaries;
+USE sakila;
+SHOW TABLES;
+SELECT * FROM actor;
+SELECT * FROM film;
+SELECT title,description,rating,length FROM film WHERE length>=180;
+SELECT * FROM payment;
+SELECT payment_id,amount,payment_date FROM payment WHERE payment_date >='2005-05-27';
+SELECT payment_id,amount,payment_date FROM payment WHERE payment_date BETWEEN '2005-05-27' AND '2005-05-28';
