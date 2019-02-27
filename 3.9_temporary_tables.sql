@@ -50,4 +50,4 @@ SELECT d.dept_name, s.emp_no, s.salary, ((s.salary-a.avg_salary)/a.stdev_salary)
 	JOIN departments d ON de.dept_no = d.dept_no
 	WHERE s.to_date > NOW()
 	) a
-GROUP BY a.dept_name;
+GROUP BY a.dept_name; 
