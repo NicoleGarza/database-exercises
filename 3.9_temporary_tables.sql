@@ -33,16 +33,21 @@ UPDATE payment_sakila SET amount2 = amount*100;
 
 DESCRIBE employees_with_departments;
 
-CREATE TEMPORARY TABLE department_average_pay AS SELECT dept_name,salary,emp_no, dept_no FROM employees.salaries JOIN employees.dept_emp USING(emp_no) JOIN employees.departments USING(dept_no) WHERE salaries.to_date>NOW();
+# OPTION 1: create a temp table 
+CREATE TEMPORARY TABLE agg AS
+SELECT AVG(salary) AS avg_salary, STDDEV(salary) AS stdev_salary
+FROM employees.salaries
+WHERE to_date > NOW();
 
-ALTER TABLE department_average_pay ADD avg_salary1 decimal (14,4);
-ALTER TABLE department_average_pay ADD STD_salary1 decimal (14,4);
-ALTER TABLE department_average_pay ADD salary_z_score1 decimal (14,4);
+# SELECT * FROM agg;
 
-UPDATE department_average_pay SET avg_salary1 = (SELECT AVG(salary) FROM employees.salaries);
-UPDATE department_average_pay SET STD_salary1 = (SELECT STD(salary) FROM employees.salaries);
-UPDATE department_average_pay SET salary_z_score1 = (salary-avg_salary1)/STD_salary1;
-
-SELECT dept_name, salary-avg_salary/STD_salary AS salary_z_score FROM department_average_pay;
-
-SELECT dept_name, AVG(salary_z_score1) FROM department_average_pay GROUP BY dept_name;
+SELECT a.dept_name, AVG(a.z_salary) AS avg_z_salary
+FROM  (
+SELECT d.dept_name, s.emp_no, s.salary, ((s.salary-a.avg_salary)/a.stdev_salary) AS z_salary
+	FROM employees.salaries s
+	JOIN agg a
+	JOIN employees.dept_emp de ON s.emp_no = de.emp_no
+	JOIN departments d ON de.dept_no = d.dept_no
+	WHERE s.to_date > NOW()
+	) a
+GROUP BY a.dept_name;
